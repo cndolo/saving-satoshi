@@ -115,7 +115,8 @@ DATABASE_PATH=./var/demo.sqlite3 bundle exec ruby bin/admin export-progress
 The second command prints CSV. Before further learning, `demo-lesson` has
 `current_lesson=CH1INT2` and `completed_lessons=1`; `demo-chapter` has `CH2INT1` and
 11 completed lessons. Login and progress timestamps update as you use the demo.
-See the [backend README](../README.md) for account changes, exports to files, and backups.
+See [student administration](../README.md#manage-accounts) for account changes,
+CSV export to a file, and backups.
 
 ## Start again with fresh demo data
 

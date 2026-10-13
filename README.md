@@ -28,8 +28,9 @@ This version:
 ## Student account backend
 
 This course version includes a small Sinatra/SQLite service without code execution.
-[Local setup, administration, and backups](backend/README.md) ·
-[Frontend + backend on one server](backend/README.md#run-both-services-on-the-same-server) ·
+[Try the demo](backend/demo/README.md) ·
+[Local or same-server setup](backend/deploy/README.md) ·
+[Student administration and backups](backend/README.md) ·
 [Implementation analysis](docs/student-backend-analysis.md) ·
 [User management API comparison](docs/user-management-api.md).
 
@@ -76,7 +77,11 @@ To help with translations and review head over to our translation [README.md](ht
 
 ## Local development setup
 
-To run this project locally:
+These steps run the frontend alone. To try course accounts and saved progress
+with the course backend, follow the [demo](backend/demo/README.md) or
+[local course setup](backend/deploy/README.md#local-course-setup).
+
+To run the frontend:
 
 1. Install the Node.js version in [`.nvmrc`](.nvmrc) and Yarn 1. Check it with `node -v`. See the [Node.js download page](https://nodejs.org/en/download) for installation options.
 2. Clone this repository.

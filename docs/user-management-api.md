@@ -114,7 +114,7 @@ another hostname or IP, set `ALLOWED_ORIGINS` to that exact browser origin,
 browser. The backend and CLI must use the **same `DATABASE_PATH`**. The frontend
 does not open SQLite itself. On one public server, a single HTTPS origin can
 reverse-proxy `/v1/*` to Puma and other paths to Next.js; see the
-[backend README](../backend/README.md#run-both-services-on-the-same-server).
+[deployment guide](../backend/deploy/README.md#deploy-on-one-server).
 
 If sign-in appears to do nothing, inspect the browser's Network tab for
 `/v1/auth/login`. The unchanged sign-in dialog currently gives no visible error

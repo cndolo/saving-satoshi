@@ -87,7 +87,7 @@ difficulty level. `COURSE_CHAPTER_IDS` configures chapters and the export metric
 The frontend and backend can run on the same server: under one HTTPS domain, the
 reverse proxy forwards `/v1/*` to Puma and everything else to Next.js. They use
 local ports 8000/3000 and one SQLite file; the runner remains public and external.
-The [backend README](../backend/README.md#run-both-services-on-the-same-server)
-contains the simple setup using Caddy for automatic HTTPS and two systemd services.
-The [deployment reference](../backend/deploy/README.md) also supports an existing
-Nginx proxy. CLI administration and CSV examples are in the backend README.
+The [deployment guide](../backend/deploy/README.md#deploy-on-one-server)
+contains the setup using Caddy for automatic HTTPS and two systemd services; it
+also supports an existing Nginx proxy. CLI administration and CSV examples are
+in the [backend README](../backend/README.md).
