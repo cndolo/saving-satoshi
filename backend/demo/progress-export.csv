@@ -1,0 +1,5 @@
+username,active,current_chapter,current_lesson,completed_lessons,total_lessons,progress_percent,progress_updated_at,last_login
+demo-chapter,1,2,CH2INT1,11,98,11.2,2026-10-06T09:15:00Z,2026-10-06T09:00:00Z
+demo-disabled,0,,,0,0,0,,
+demo-lesson,1,1,CH1INT2,1,98,1.0,2026-10-06T09:15:00Z,2026-10-06T09:00:00Z
+demo-new,1,,,0,0,0,,

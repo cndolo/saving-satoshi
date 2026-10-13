@@ -1,5 +1,7 @@
 # Saving Satoshi — Blockchain Course Edition
 
+> **Disclaimer:** This course adaptation, including its backend, is a vibe-coded project developed with AI assistance.
+
 > This repository is a course-specific adaptation of
 > [Saving Satoshi](https://github.com/saving-satoshi/saving-satoshi) for use in
 > a university blockchain course.
@@ -22,6 +24,19 @@ This version:
 - may contain additional modifications for classroom use.
 
 ---
+
+## Student account backend
+
+This course version includes a small Sinatra/SQLite service without code execution.
+[Local setup, administration, and backups](backend/README.md) ·
+[Frontend + backend on one server](backend/README.md#run-both-services-on-the-same-server) ·
+[Implementation analysis](docs/student-backend-analysis.md) ·
+[User management API comparison](docs/user-management-api.md).
+
+REST: `NEXT_PUBLIC_API_ENDPOINT`; public runner: `NEXT_PUBLIC_WS_ENDPOINT`.
+The original key-based sign-in and registration flows remain available.
+The CLI manages named course accounts; self-registration can be disabled in the backend.
+The frontend and backend can run on the same server under the same domain.
 
 ## About Saving Satoshi
 
@@ -63,7 +78,7 @@ To help with translations and review head over to our translation [README.md](ht
 
 To run this project locally:
 
-1. First, make sure you have NodeJS version 16.13.0 or higher installed. Check `node -v`. Node [installation instructions](https://nodejs.org/en/download/package-manager/)
+1. Install the Node.js version in [`.nvmrc`](.nvmrc) and Yarn 1. Check it with `node -v`. See the [Node.js download page](https://nodejs.org/en/download) for installation options.
 2. Clone this repository.
 3. Change into the directory `cd saving-satoshi`
 4. Run `yarn install` to download the required code libraries

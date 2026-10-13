@@ -1,0 +1,12 @@
+# Replace this domain with your own. Caddy manages HTTPS automatically.
+satoshi.example.edu {
+    # Keep /v1/ in the request path; the backend uses the original API URLs.
+    handle /v1/* {
+        reverse_proxy 127.0.0.1:8000
+    }
+
+    # Next.js pages and assets.
+    handle {
+        reverse_proxy 127.0.0.1:3000
+    }
+}

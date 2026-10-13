@@ -1,0 +1,14 @@
+#!/usr/bin/env ruby
+# frozen_string_literal: true
+require_relative '../lib/demo'
+
+begin
+  abort 'Usage: bundle exec ruby bin/create-demo [NEW_SQLITE_PATH]' if ARGV.size > 1
+  path = ARGV.empty? ? CourseBackend::Demo.create : CourseBackend::Demo.create(ARGV.first)
+  puts "Created demo database: #{path}"
+  puts 'Public demo credentials are in demo/accounts.csv. Use for local testing only.'
+rescue Errno::EEXIST
+  abort 'Destination already exists. Choose a new file; no existing database was changed.'
+rescue ArgumentError, JSON::ParserError, CSV::MalformedCSVError, SQLite3::Exception, SystemCallError
+  abort 'Could not create the demo database. Check the fixture files and destination path.'
+end
