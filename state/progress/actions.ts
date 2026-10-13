@@ -3,10 +3,12 @@ import { getProgress } from 'api/progress'
 import { atom } from 'jotai'
 import { allLessonOrder } from 'lib/progess'
 import { CourseProgress } from 'types'
+import { SAVING_SATOSHI_TOKEN } from 'config/keys'
 import { accountAtom, isAuthLoadingAtom, presentPageAtom } from '../state'
 import {
   isLoadingProgressAtom,
   isProgressLoadedAtom,
+  progressErrorAtom,
   syncedCourseProgressAtom,
 } from './atoms'
 import { defaultProgressState } from './defaultProgress'
@@ -78,33 +80,36 @@ export const loadProgressAtom = atom(null, async (get, set) => {
     return
   }
 
-  // Turn on loading state for UI.
+  // A retained token with an unavailable session must never load guest state.
+  if (
+    !account &&
+    typeof window !== 'undefined' &&
+    window.sessionStorage.getItem(SAVING_SATOSHI_TOKEN)
+  ) {
+    set(isProgressLoadedAtom, false)
+    set(isLoadingProgressAtom, false)
+    return
+  }
   set(isLoadingProgressAtom, true)
-
-  let progress: CourseProgress | null = null
-
-  if (account) {
-    // Signed-in users try server progress first.
-    progress = await getProgress()
+  set(isProgressLoadedAtom, false)
+  try {
+    const progress = account ? await getProgress() : await getProgressLocal()
+    // Ignore a response belonging to an account we have since left.
+    if (get(accountAtom)?.id !== account?.id) return
+    set(
+      syncedCourseProgressAtom,
+      mergeProgressState(defaultProgressState, progress || defaultProgressState)
+    )
+    set(isProgressLoadedAtom, true)
+    set(progressErrorAtom, null)
+  } catch {
+    set(
+      progressErrorAtom,
+      'Progress could not be loaded. Please retry before continuing.'
+    )
+  } finally {
+    set(isLoadingProgressAtom, false)
   }
-
-  // Fall back to local storage if no backend progress is available.
-  if (!progress) {
-    progress = await getProgressLocal()
-  }
-
-  // Use defaults if neither source returned progress.
-  const finalProgress = progress || defaultProgressState
-
-  // Merge persisted values onto current defaults.
-  set(
-    syncedCourseProgressAtom,
-    mergeProgressState(defaultProgressState, finalProgress)
-  )
-  // Mark first-hydration complete, then clear active loading state.
-  // On later refreshes, loaded=true and loading=true is a valid temporary state.
-  set(isProgressLoadedAtom, true)
-  set(isLoadingProgressAtom, false)
 })
 
 /**

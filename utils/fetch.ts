@@ -1,105 +1,41 @@
-import { url } from 'utils'
+import url from './url'
 import { FetchOptions } from 'types'
 import { SAVING_SATOSHI_TOKEN } from 'config/keys'
 
-const defaultHeaders = {
-  'Content-Type': 'application/json',
-}
-
-export async function get(options: FetchOptions) {
-  try {
-    const fetchOptions: any = {
-      method: 'GET',
-      headers: {
-        ...defaultHeaders,
-        ...options.headers,
-      },
-    }
-
-    if (options.includeToken) {
-      const token = window.localStorage.getItem(SAVING_SATOSHI_TOKEN)
-      if (token) {
-        fetchOptions.headers['Authorization'] = `Bearer ${token}`
-      }
-    }
-
-    const res = await fetch(url(options.url), fetchOptions)
-    const json = await res.json()
-
-    if (json.errors) {
-      throw json.errors
-    }
-
-    return json
-  } catch (ex) {
-    throw ex
+export class ApiError extends Error {
+  constructor(public status: number, message: string) {
+    super(message)
+    this.name = 'ApiError'
   }
 }
 
-export async function post(options: FetchOptions) {
-  try {
-    const fetchOptions: any = {
-      method: 'POST',
-      headers: {
-        ...defaultHeaders,
-        ...options.headers,
-      },
-    }
-
-    if (options.includeToken) {
-      const token = window.localStorage.getItem(SAVING_SATOSHI_TOKEN)
-      if (token) {
-        fetchOptions.headers['Authorization'] = `Bearer ${token}`
-      }
-    }
-
-    if (options.body) {
-      fetchOptions.body = JSON.stringify(options.body)
-    }
-
-    const res = await fetch(url(options.url), fetchOptions)
-    const json = await res.json()
-
-    if (json.errors) {
-      throw json.errors
-    }
-
-    return json
-  } catch (ex) {
-    throw ex
+async function request(method: string, options: FetchOptions) {
+  const headers = {
+    'Content-Type': 'application/json',
+    ...options.headers,
   }
+  if (options.includeToken) {
+    const token = window.sessionStorage.getItem(SAVING_SATOSHI_TOKEN)
+    if (token) headers['Authorization'] = `Bearer ${token}`
+  }
+  const res = await fetch(url(options.url), {
+    method,
+    headers,
+    ...(options.body ? { body: JSON.stringify(options.body) } : {}),
+    cache: 'no-store',
+  })
+  let json: any
+  try {
+    json = await res.json()
+  } catch {
+    throw new ApiError(res.status, 'Invalid response from backend')
+  }
+  if (!res.ok || json.errors) {
+    throw new ApiError(res.status, json.errors?.[0] || 'Backend request failed')
+  }
+  return json
 }
 
-export async function put(options: FetchOptions) {
-  try {
-    const fetchOptions: any = {
-      method: 'PUT',
-      headers: {
-        ...defaultHeaders,
-        ...options.headers,
-      },
-    }
-
-    if (options.includeToken) {
-      const token = window.localStorage.getItem(SAVING_SATOSHI_TOKEN)
-      if (token) {
-        fetchOptions.headers['Authorization'] = `Bearer ${token}`
-      }
-    }
-
-    if (options.body) {
-      fetchOptions.body = JSON.stringify(options.body)
-    }
-
-    const res = await fetch(url(options.url), fetchOptions)
-    const json = await res.json()
-
-    if (json.errors) {
-      throw json.errors
-    }
-
-    return json
-  } catch (ex) {
-    throw ex
-  }
-}
+export const get = (options: FetchOptions) => request('GET', options)
+export const post = (options: FetchOptions) => request('POST', options)
+export const put = (options: FetchOptions) => request('PUT', options)

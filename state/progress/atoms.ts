@@ -22,33 +22,31 @@ export const isLoadingProgressAtom = atom<boolean>(true)
  */
 export const isProgressLoadedAtom = atom<boolean>(false)
 
+/** A visible error also prevents silently losing work during outages. */
+export const progressErrorAtom = atom<string | null>(null)
+
 /** Main in-memory source of truth for course progress. */
 export const courseProgressAtom = atom<CourseProgress>(defaultProgressState)
 
-/**
- * Persists in-memory progress to storage on every change.
- *
- * Always writes to local storage so progress survives logout. Authenticated
- * users also get their progress synced to the backend.
- */
-const syncProgressEffectAtom = atomEffect((get) => {
-  // Read dependencies so the effect reruns when any of them change.
+/** Persist guest progress locally; student progress belongs only to the server account. */
+const syncProgressEffectAtom = atomEffect((get, set) => {
   const account = get(accountAtom)
   const courseProgress = get(courseProgressAtom)
   const isAuthLoading = get(isAuthLoadingAtom)
   const isProgressLoaded = get(isProgressLoadedAtom)
-
-  // Skip writes while auth/progress bootstrap is still unresolved.
-  if (isAuthLoading || !isProgressLoaded) {
-    return
-  }
-
-  // Always persist to local storage so progress survives logout.
-  setProgressLocal(courseProgress)
+  if (isAuthLoading || !isProgressLoaded) return
 
   if (account) {
-    // Signed-in users also write progress to the backend.
-    setProgress(courseProgress)
+    setProgress(courseProgress).catch(() => {
+      if (get.peek(accountAtom)?.id === account.id) {
+        set(
+          progressErrorAtom,
+          'Progress could not be saved. Keep this tab open and retry.'
+        )
+      }
+    })
+  } else {
+    setProgressLocal(courseProgress)
   }
 })
 

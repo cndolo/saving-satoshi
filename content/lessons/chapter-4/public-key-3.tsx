@@ -7,7 +7,7 @@ import { Text } from 'ui'
 import { useState } from 'react'
 import { getLanguageString } from 'lib/SavedCode'
 import { useAtom } from 'jotai'
-import { accountAtom, currentLanguageAtom } from 'state/state'
+import { currentLanguageAtom } from 'state/state'
 import Accordion from 'ui/common/Accordion'
 import * as secp256k1 from '@noble/secp256k1'
 
@@ -35,13 +35,10 @@ function computePublicKey(privateKeyHex: string) {
 
 export default function PublicKey3({ lang }) {
   const t = useTranslations(lang)
-  const [account] = useAtom(accountAtom)
   const [currentLanguage] = useAtom(currentLanguageAtom)
-  const [privateKey, setPrivateKey] = useState('')
-
-  if (account && !privateKey) {
-    setPrivateKey(account?.private_key.toString())
-  }
+  // Public teaching input, unrelated to course authentication. Never use for real funds.
+  const privateKey =
+    '0000000000000000000000000000000000000000000000000000000000000001'
 
   const javascript = {
     program: `

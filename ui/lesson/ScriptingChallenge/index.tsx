@@ -86,35 +86,42 @@ export default function ScriptingChallenge({
   const [hydrated, setHydrated] = useState(false)
   const [errors, setErrors] = useState<string[]>([])
   const debouncedCode = useDebounce(code, 500)
-  const hasLoaded = useRef(false)
+  const skipDraftSave = useRef(true)
+  const draftKey = (lang: string) =>
+    account
+      ? `SavingSatoshiDraft:${account.id}:${lessonKey}-${lang}`
+      : `${lessonKey}-${lang}`
 
-  // Hydrate editor from localStorage before enabling autosave.
+  // Student drafts are tab-local and scoped to the account. Guest drafts stay local.
   useEffect(() => {
-    const savedCode = localStorage.getItem(`${lessonKey}-${language}`)
-    if (savedCode) {
-      setCode(savedCode)
-    }
-    hasLoaded.current = true
-  }, [lessonKey, language])
+    const storage = account ? sessionStorage : localStorage
+    const savedCode = storage.getItem(draftKey(language))
+    setCode(savedCode || config.languages[language].defaultCode?.toString())
+    skipDraftSave.current = true
+    setChallengeSuccess(false)
+    // Defaults can arrive asynchronously from a previous lesson; don't reset on every config render.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [lessonKey, language, account?.id])
 
-  // Autosave to localStorage, gated on hydration to prevent overwriting saved drafts.
   useEffect(() => {
-    if (hasLoaded.current) {
-      localStorage.setItem(`${lessonKey}-${language}`, debouncedCode)
+    if (skipDraftSave.current) {
+      skipDraftSave.current = false
+      return
     }
-  }, [debouncedCode, lessonKey, language])
+    if (debouncedCode !== code || !debouncedCode) return
+    const storage = account ? sessionStorage : localStorage
+    storage.setItem(draftKey(language), debouncedCode)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [debouncedCode, code, lessonKey, language, account?.id])
 
-  // Sync local language state when the atom hydrates from localStorage.
   useEffect(() => {
     const langStr = getLanguageString(currentLanguage)
     if (langStr !== language && langStr !== 'unknown') {
       setLanguage(langStr)
-      const savedCode = localStorage.getItem(`${lessonKey}-${langStr}`)
-      setCode(savedCode || config.languages[langStr].defaultCode?.toString())
       setHiddenRange(config.languages[langStr].hiddenRange)
       setConstraints(config.languages[langStr].constraints)
     }
-  }, [currentLanguage, language, lessonKey, config.languages])
+  }, [currentLanguage, language, config.languages])
 
   useDynamicHeight()
   const isSmallScreen = useMediaQuery({ width: 767 })

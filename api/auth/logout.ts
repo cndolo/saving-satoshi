@@ -1,19 +1,11 @@
-import { SAVING_SATOSHI_TOKEN } from 'config/keys'
+import { SAVING_SATOSHI_TOKEN, SAVING_SATOSHI_PRIVATE_KEY } from 'config/keys'
 import { post } from 'utils'
 
 export default async function logout() {
   try {
-    const res = await post({
-      url: '/v1/auth/logout',
-      body: {},
-      includeToken: true,
-    })
-
-    window.localStorage.removeItem(SAVING_SATOSHI_TOKEN)
-
-    return true
-  } catch (errors) {
-    console.error(errors)
-    return false
+    await post({ url: '/v1/auth/logout', body: {}, includeToken: true })
+  } finally {
+    window.sessionStorage.removeItem(SAVING_SATOSHI_TOKEN)
+    window.sessionStorage.removeItem(SAVING_SATOSHI_PRIVATE_KEY)
   }
 }

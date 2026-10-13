@@ -1,5 +1,7 @@
 'use client'
 
+import ProgressSyncStatus from './ProgressSyncStatus'
+
 import AccountModal from 'components/Modals/Account'
 import SignInModal from 'components/Modals/SignIn'
 import SignUpModal from 'components/Modals/SignUp'
@@ -39,6 +41,7 @@ function LayoutContent({ children }: { children?: React.ReactNode }) {
 
   return (
     <>
+      <ProgressSyncStatus />
       {children}
       <SignInModal
         state={modals[Modal.SignIn]}

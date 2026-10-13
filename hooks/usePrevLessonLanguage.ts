@@ -4,7 +4,7 @@ import { useEffect, useState } from 'react'
 import { useAtom } from 'jotai'
 import { getData } from 'api/data'
 import { detectLanguage, Language } from 'lib/SavedCode'
-import { currentLanguageAtom } from 'state/state'
+import { accountAtom, currentLanguageAtom } from 'state/state'
 
 export default function usePrevLessonLanguage(prevLessonId: string) {
   const [prevData, setPrevData] = useState<any>({ lesson_id: '', data: '' })
@@ -12,11 +12,16 @@ export default function usePrevLessonLanguage(prevLessonId: string) {
   const [detectedLang, setDetectedLang] = useState<Language>(
     Language.JavaScript
   )
+  const [account] = useAtom(accountAtom)
   const [language, setCurrentLanguage] = useAtom(currentLanguageAtom)
 
   useEffect(() => {
+    let cancelled = false
+    setPrevData({ lesson_id: '', data: '' })
+    setIsLoading(true)
     const fetchPrevLesson = async () => {
-      const data = await getData(prevLessonId)
+      const data = account ? await getData(prevLessonId) : undefined
+      if (cancelled) return
       if (data?.code) {
         const decodedData = data.code.getDecoded()
         setPrevData({
@@ -37,7 +42,10 @@ export default function usePrevLessonLanguage(prevLessonId: string) {
     }
 
     fetchPrevLesson()
-  }, [prevLessonId, setCurrentLanguage, language])
+    return () => {
+      cancelled = true
+    }
+  }, [prevLessonId, setCurrentLanguage, language, account?.id])
 
   return { prevData, isLoading, detectedLanguage: detectedLang }
 }
